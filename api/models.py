@@ -23,7 +23,7 @@ class ProjectModel(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(max_length=500)
     assigned_lead = models.ForeignKey(LeadModel,on_delete=models.CASCADE,null=True,blank=True)
-
+    assigned_employee = models.ManyToManyField(EmployeeModel)
     def __str__(self):
         return self.name
 
