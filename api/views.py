@@ -34,7 +34,7 @@ class AssignedProjectToEmployeeView(APIView):
             lead = project.assigned_lead
             lead_data = {
                 "name": lead.name if lead else None,
-                "team": [employee.name for employee in lead.lead_team.all()] if lead else []
+                # "team": [employee.name for employee in lead.lead_team.all()] if lead else []
             }
 
             project_data.append({
