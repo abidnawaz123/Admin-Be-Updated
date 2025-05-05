@@ -20,12 +20,13 @@ class AssignedProjectToEmployeeView(APIView):
     def get(self, request, *args, **kwargs):
         # Extract the employee name from query parameters
         employee_id = request.query_params.get('employee_id')
+        is_admin = request.query_params.get('is_admin')
 
         if not employee_id:
             return Response({"error": "Employee id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Query the projects assigned to the employee
-        projects = ProjectModel.objects.filter(assigned_employee__id=employee_id)
+        projects = ProjectModel.objects.filter(assigned_employee__id=employee_id) if not is_admin else ProjectModel.objects.all()
 
         project_data = []
 
