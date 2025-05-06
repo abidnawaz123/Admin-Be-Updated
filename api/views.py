@@ -17,6 +17,7 @@ class ProjectView(generics.ListAPIView):
     serializer_class = ProjectSerializer
 
 class AssignedProjectToEmployeeView(APIView):
+
     def get(self, request, *args, **kwargs):
         # Extract the employee name from query parameters
         employee_id = request.query_params.get('employee_id')
@@ -35,7 +36,10 @@ class AssignedProjectToEmployeeView(APIView):
             lead = project.assigned_lead
             lead_data = {
                 "name": lead.name if lead else None,
-                # "team": [employee.name for employee in lead.lead_team.all()] if lead else []
+                "team": [{
+                    "employee_name":employee.get_full_name(),
+                    "employee_status": employee.status
+                } for employee in project.assigned_employee.all()] if project.assigned_employee else []
             }
 
             project_data.append({
@@ -48,6 +52,13 @@ class AssignedProjectToEmployeeView(APIView):
             return Response({"message": "No projects found for the given employee"}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({"projects": project_data}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = ProjectSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class AssignedTickets(APIView):
     def get(self, request, *args, **kwargs):

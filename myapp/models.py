@@ -13,5 +13,12 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='employee')
 
+    STATUS_CHOICES = (
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    )
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='inactive')
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
