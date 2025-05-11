@@ -21,6 +21,11 @@ class LeadModel(models.Model):
     def __str__(self):
         return self.name
 
+class EmployeeModel(models.Model):
+    name = models.CharField(max_length=100)
+    def __str__(self):
+        return self.name
+
 class ProjectModel(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(max_length=500)

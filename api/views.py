@@ -1,12 +1,13 @@
 from rest_framework import generics
 from .models import *
-from .serializers import ProjectSerializer, TicketSerializer
+from .serializers import ProjectSerializer, TicketSerializer, LeadSerializer, EmployeeSerializer, CustomUsersSerializer
 from rest_framework.views import APIView
 
 from rest_framework.response import Response
 from rest_framework import status
 from myapp.models import CustomUser
 
+from django.db.models import Q
 
 # class EmployeeView(generics.ListAPIView):
 #     queryset = EmployeeModel.objects.all()
@@ -54,11 +55,29 @@ class AssignedProjectToEmployeeView(APIView):
         return Response({"projects": project_data}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+
+        all_selected_employees_names = request.data.get("assigned_employee")
+
+        filters = Q()
+        for full_name in all_selected_employees_names:
+            try:
+                first_name, last_name = full_name.strip().split(" ", 1)
+                filters |= Q(first_name__iexact=first_name.strip(), last_name__iexact=last_name.strip())
+            except ValueError:
+                # Handle cases where the name does not split correctly
+                continue
+
+        users = CustomUser.objects.filter(filters)
+        assigned_employee = list(users.values_list('id', flat=True))
+        request.data["assigned_employee"] = assigned_employee
+
         serializer = ProjectSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class AssignedTickets(APIView):
     def get(self, request, *args, **kwargs):
@@ -90,3 +109,17 @@ class AssignedTickets(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
             raise Exception({"error": str(e)}, status.HTTP_400_BAD_REQUEST)
+
+
+class LeadService(APIView):
+    def get(self , request ):
+        leads = LeadModel.objects.all()
+        serializer = LeadSerializer(leads, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class EmployeeService(APIView):
+    def get(self, request):
+        employees = EmployeeModel.objects.all()
+        serializer = EmployeeSerializer(employees, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

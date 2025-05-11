@@ -7,4 +7,6 @@ urlpatterns = [
     path('assignedproject/',AssignedProjectToEmployeeView.as_view(), name='assigned-project-to-employee-list'),
     path('assigned_tickets/',AssignedTickets.as_view(), name='assigned-tickets-list'),
     path('assigned_tickets/<int:pk>', AssignedTickets.as_view(), name='assigned-tickets-list'),
+    path('leads/', LeadService.as_view(), name='lead-list'),
+    path('employees/',EmployeeService.as_view(), name='employee-list'),
 ]

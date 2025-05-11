@@ -9,7 +9,13 @@ class CustomUsersSerializer(serializers.ModelSerializer):
 class LeadSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeadModel
-        fields = ['name']
+        fields = ['id','name', 'lead_team']
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeModel
+        fields = ['id', 'name']
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     lead = serializers.SerializerMethodField()
@@ -37,6 +43,13 @@ class ProjectSerializer(serializers.ModelSerializer):
             "name": lead_name,
             "team": team
         }
+
+    def create(self, validated_data):
+        print("CREATE METHOD CALLED")
+        assigned_employees = validated_data.pop('assigned_employee', [])
+        project = ProjectModel.objects.create(**validated_data)
+        project.assigned_employee.set(assigned_employees)
+        return project
 
 class TicketSerializer(serializers.ModelSerializer):
     assigned_lead = serializers.SerializerMethodField()
